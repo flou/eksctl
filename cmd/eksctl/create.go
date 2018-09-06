@@ -93,6 +93,8 @@ func createClusterCmd() *cobra.Command {
 
 	fs.BoolVar(&cfg.Addons.WithIAM.PolicyAmazonEC2ContainerRegistryPowerUser, "full-ecr-access", false, "enable full access to ECR")
 
+	fs.StringVar(&cfg.NodeAMI, "node-ami", "", "if not supplied then eksctl will automatically set the AMI based on region/instance type; if supplied it will override the AMI to use for the nodes")
+
 	return cmd
 }
 
