@@ -38,9 +38,11 @@ type DefaultResolver struct {
 func (r *DefaultResolver) Resolve(region string, instanceType string) (string, error) {
 	switch region {
 	case "us-west-2":
-		return "ami-73a6e20b", nil
+		return "ami-08cab282f9979fc7a", nil
 	case "us-east-1":
-		return "ami-dea4d5a1", nil
+		return "ami-0b2ae3c6bda8b5c06", nil
+	case "eu-west-1":
+		return "ami-066110c1a7466949e", nil
 	default:
 		return "", fmt.Errorf("Unable to resolve AMI for region %s and instance type %s", region, instanceType)
 	}

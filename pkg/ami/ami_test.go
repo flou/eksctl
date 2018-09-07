@@ -29,13 +29,19 @@ var _ = Describe("AMI Resolution", func() {
 		Entry("with non-gpu instance and us-west-2", ResolveCase{
 			Region:       "us-west-2",
 			InstanceType: "t2.medium",
-			ExpectedAMI:  "ami-73a6e20b",
+			ExpectedAMI:  "ami-08cab282f9979fc7a",
 			ExpectError:  false,
 		}),
 		Entry("with non-gpu instance and us-east-1", ResolveCase{
 			Region:       "us-east-1",
 			InstanceType: "t2.medium",
-			ExpectedAMI:  "ami-dea4d5a1",
+			ExpectedAMI:  "ami-0b2ae3c6bda8b5c06",
+			ExpectError:  false,
+		}),
+		Entry("with non-gpu instance and eu-west-1", ResolveCase{
+			Region:       "eu-west-1",
+			InstanceType: "t2.medium",
+			ExpectedAMI:  "ami-066110c1a7466949e",
 			ExpectError:  false,
 		}),
 		Entry("with non-gpu instance and non-eks enabled region", ResolveCase{
