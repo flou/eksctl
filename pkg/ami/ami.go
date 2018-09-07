@@ -2,7 +2,8 @@ package ami
 
 import (
 	"fmt"
-	"strings"
+
+	"github.com/weaveworks/eksctl/pkg/utils"
 )
 
 // ResolveAMI will resolve an AMI from the supplied region
@@ -11,8 +12,7 @@ import (
 func ResolveAMI(region string, instanceType string) (string, error) {
 	var resolver Resolver
 
-	if strings.HasPrefix(instanceType, "p2") ||
-		strings.HasPrefix(instanceType, "p3") {
+	if utils.IsGPUInstanceType(instanceType) {
 		resolver = &GpuResolver{}
 	} else {
 		resolver = &DefaultResolver{}
@@ -54,8 +54,7 @@ type GpuResolver struct {
 
 // Resolve will return an AMI based on the region for GPU instance types
 func (r *GpuResolver) Resolve(region string, instanceType string) (string, error) {
-	if !strings.HasPrefix(instanceType, "p2") &&
-		!strings.HasPrefix(instanceType, "p3") {
+	if !utils.IsGPUInstanceType(instanceType) {
 		return "", fmt.Errorf("Cannot resolve AMI as the instance type isn'y GPU optimized")
 	}
 

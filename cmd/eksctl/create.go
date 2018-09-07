@@ -93,7 +93,7 @@ func createClusterCmd() *cobra.Command {
 
 	fs.BoolVar(&cfg.Addons.WithIAM.PolicyAmazonEC2ContainerRegistryPowerUser, "full-ecr-access", false, "enable full access to ECR")
 
-	fs.StringVar(&cfg.NodeAMI, "node-ami", "", "if not supplied then eksctl will automatically set the AMI based on region/instance type; if supplied it will override the AMI to use for the nodes")
+	fs.StringVar(&cfg.NodeAMI, "node-ami", "", "Advanced use cases only. If not supplied then eksctl will automatically set the AMI based on region/instance type; if supplied it will override the AMI to use for the nodes. Use with extreme care.")
 
 	return cmd
 }
@@ -205,6 +205,12 @@ func doCreateCluster(cfg *api.ClusterConfig, name string) error {
 		if err := utils.CheckAllCommands(kubeconfigPath, setContext, clientConfigBase.ContextName, env); err != nil {
 			logger.Critical("%s\n", err.Error())
 			logger.Info("cluster should be functional despite missing (or misconfigured) client binaries")
+		}
+
+		// If GPU instance type, give instructions
+		if utils.IsGPUInstanceType(cfg.NodeType) {
+			logger.Info("as you are using a GPU optimized instance type you will need to install NVIDIA Kubernetes device plugin.")
+			logger.Info("\t see the following page for instructions: https://github.com/NVIDIA/k8s-device-plugin")
 		}
 	}
 
