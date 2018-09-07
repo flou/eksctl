@@ -1,30 +1,32 @@
 package ami
 
 import (
-	"fmt"
-
 	"github.com/weaveworks/eksctl/pkg/utils"
+)
+
+var (
+	// DefaultAMIResolvers contains a list of resolvers to try in order
+	DefaultAMIResolvers = []Resolver{&GpuResolver{}, &DefaultResolver{}}
 )
 
 // ResolveAMI will resolve an AMI from the supplied region
 // and instance type. It will invoke a specific resolver
 // to do the actual detrminng of AMI.
 func ResolveAMI(region string, instanceType string) (string, error) {
-	var resolver Resolver
-
-	if utils.IsGPUInstanceType(instanceType) {
-		resolver = &GpuResolver{}
-	} else {
-		resolver = &DefaultResolver{}
+	for _, resolver := range DefaultAMIResolvers {
+		ami := resolver.Resolve(region, instanceType)
+		if ami != "" {
+			return ami, nil
+		}
 	}
 
-	return resolver.Resolve(region, instanceType)
+	return "", NewErrFailedAMIResolution(region, instanceType)
 }
 
 // Resolver provides an interface to enable implementing multiple
 // ways to determine which AMI to use from the region/instance type.
 type Resolver interface {
-	Resolve(region string, instanceType string) (string, error)
+	Resolve(region string, instanceType string) string
 }
 
 // DefaultResolver resolves the AMi to the defaults for the region
@@ -35,16 +37,16 @@ type DefaultResolver struct {
 // TODO: https://github.com/weaveworks/eksctl/issues/49
 // currently source of truth for these is here:
 // https://docs.aws.amazon.com/eks/latest/userguide/launch-workers.html
-func (r *DefaultResolver) Resolve(region string, instanceType string) (string, error) {
+func (r *DefaultResolver) Resolve(region string, instanceType string) string {
 	switch region {
 	case "us-west-2":
-		return "ami-08cab282f9979fc7a", nil
+		return "ami-08cab282f9979fc7a"
 	case "us-east-1":
-		return "ami-0b2ae3c6bda8b5c06", nil
+		return "ami-0b2ae3c6bda8b5c06"
 	case "eu-west-1":
-		return "ami-066110c1a7466949e", nil
+		return "ami-066110c1a7466949e"
 	default:
-		return "", fmt.Errorf("Unable to resolve AMI for region %s and instance type %s", region, instanceType)
+		return ""
 	}
 }
 
@@ -53,19 +55,19 @@ type GpuResolver struct {
 }
 
 // Resolve will return an AMI based on the region for GPU instance types
-func (r *GpuResolver) Resolve(region string, instanceType string) (string, error) {
+func (r *GpuResolver) Resolve(region string, instanceType string) string {
 	if !utils.IsGPUInstanceType(instanceType) {
-		return "", fmt.Errorf("Cannot resolve AMI as the instance type isn'y GPU optimized")
+		return ""
 	}
 
 	switch region {
 	case "us-west-2":
-		return "ami-0d20f2404b9a1c4d1", nil
+		return "ami-0d20f2404b9a1c4d1"
 	case "us-east-1":
-		return "ami-09fe6fc9106bda972", nil
+		return "ami-09fe6fc9106bda972"
 	case "eu-west-1":
-		return "ami-09e0c6b3d3cf906f1", nil
+		return "ami-09e0c6b3d3cf906f1"
 	default:
-		return "", fmt.Errorf("Unable to resolve AMI for region %s and instance type %s", region, instanceType)
+		return ""
 	}
 }

@@ -1,6 +1,8 @@
 package ami_test
 
 import (
+	"reflect"
+
 	"github.com/weaveworks/eksctl/pkg/ami"
 
 	. "github.com/onsi/ginkgo"
@@ -22,6 +24,9 @@ var _ = Describe("AMI Resolution", func() {
 			Expect(actualAmi).Should(Equal(c.ExpectedAMI))
 			if c.ExpectError {
 				Expect(err).Should(HaveOccurred())
+				Expect(err).Should(MatchError(ami.NewErrFailedAMIResolution(c.Region, c.InstanceType)))
+				errorType := reflect.TypeOf(err).Elem().Name()
+				Expect(errorType).To(Equal("ErrFailedAMIResolution"))
 			} else {
 				Expect(err).ShouldNot(HaveOccurred())
 			}
